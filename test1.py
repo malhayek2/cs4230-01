@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+import sklearn.model_selection
 #open data file
 def get_data( filename ):
     data = pd.read_csv( filename, index_col=0 )
@@ -70,14 +70,20 @@ def display_data( data ):
 	plt.show( )
 
 
+def split_data( data, ratio ):
+    data_train, data_test = sklearn.model_selection.train_test_split( data, test_size=ratio )
+    data_train.to_csv( "mo_train.csv" )
+    data_test.to_csv( "mo_test.csv" )
+    return
 
 
 def main( ):
-	print("here")
+	print("Reading data...")
 	data = get_data("mo.csv")
 	data = data[(data.x1 < 225 )&(data.x1 >= 40)]
 	data = data[(data.x2 < 50 )&(data.x2 >= 30)]
-	data = data[(data.x3 < 150 )&(data.x3 >= -100)]
+	#-99 isnt working ?
+	data = data[(data.x3 < 150 )&(data.x3 > -99)]
 	data = data[(data.x4 < 130 )&(data.x4 >= 40)]
 	data = data[(data.x5 >= 1)]
 	data = data[(data.x6 < 100 )]
@@ -86,7 +92,8 @@ def main( ):
 
 	#save new clean data
 	data.to_csv( 'cut_mo.csv' )
-	# newdata = get_data("cut_mo.csv")
+	newData = get_data("cut_mo.csv")
+	split_data(newData, 0.20 )
 	display_data(data)
 	#print(data.labels)
 
