@@ -13,7 +13,7 @@ def display_data( data ):
 	plt.figure( 1, figsize=(9,6) )
 	# subplot in 3x3 grid, position 1
 	plt.subplot(4, 4, 1 )
-	plt.scatter( data.x1,data.labels)
+	plt.plot( data.x1,data.labels)
 	plt.title('x1 Scatter')
     # subplot in 3x3 grid, position 2
 	plt.subplot( 4, 4, 2 )
@@ -77,6 +77,17 @@ def split_data( data, ratio ):
     return
 
 
+def separate_predictors_and_labels( data ):
+    predictors_X = data.drop( "labels", axis=1 )
+    labels_Y = data[ "labels" ].copy( )
+    return predictors_X, labels_Y
+
+def scale_predictors( X ):
+    scaler = sklearn.preprocessing.StandardScaler( )
+    scaler.fit( X )
+    X = scaler.transform( X )
+    return X, scaler
+
 def main( ):
 	print("Reading data...")
 	data = get_data("mo.csv")
@@ -94,7 +105,16 @@ def main( ):
 	data.to_csv( 'cut_mo.csv' )
 	newData = get_data("cut_mo.csv")
 	split_data(newData, 0.20 )
-	display_data(data)
+	display_data(newData)
+
+	#printing scalers to know the train_x values to find correlations
+	data_train = get_data( "mo_train.csv" )
+	#display_data("data_train")
+	train_X_raw, train_Y = separate_predictors_and_labels( data_train )
+	train_X = scale_predictors( train_X_raw )
+	print( train_X_raw )
+	print( train_X )
+	#train_X.to_csv("train_X.csv")
 	#print(data.labels)
 
 

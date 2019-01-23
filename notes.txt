@@ -1,0 +1,18 @@
+Correlations Notes
+
+strong posittive oorrleation when the median values tend to go up when the median income goes up.
+strong negative coorrleation when the coefficent is close to -1. 
+no correlation when the coefficents is close to zero.
+
+
+
+homework 1 data
+
+-1.6 -> 1.3
+
+-1.3 - > 0.9
+-1.1 -> 1.3
+ ??????
+-0.4 ->1.3
+-1.5 -> 1.5
+-1.1 ->1.14
