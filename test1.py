@@ -2,6 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn.model_selection
+import sklearn.preprocessing
+import sklearn.linear_model
+import sklearn.metrics
+from sklearn.externals import joblib
+
+
+
 #open data file
 def get_data( filename ):
     data = pd.read_csv( filename, index_col=0 )
@@ -83,13 +90,38 @@ def separate_predictors_and_labels( data ):
     return predictors_X, labels_Y
 
 def scale_predictors( X ):
+    X = X.astype( 'float64' )
     scaler = sklearn.preprocessing.StandardScaler( )
     scaler.fit( X )
     X = scaler.transform( X )
     return X, scaler
 
-def main( ):
-	print("Reading data...")
+def fit( X, Y ):
+	reg = sklearn.linear_model.LinearRegression( )
+	reg.fit( X, Y )
+	print( )
+	print("reg")
+	print( reg )
+	print ("reg.coef")
+	print( reg.coef_ )
+	print ("intercept_")
+	print( reg.intercept_ )
+	return reg
+
+def test( X, Y, reg ):
+	Y_predicted = reg.predict( X )
+	print("Test_Y")
+	print( Y )
+	print ("Y_predicted")
+	print( Y_predicted )
+
+	mean_squared_error = sklearn.metrics.mean_squared_error( Y, Y_predicted )
+	print("Mean Squared Errpr " + str(mean_squared_error))
+	root_mean_squared_error = np.sqrt( mean_squared_error )
+	print( "Root Mean Squared Error: " + str( root_mean_squared_error ) )
+	return
+
+def cleanData():
 	data = get_data("mo.csv")
 	data = data[(data.x1 < 225 )&(data.x1 >= 40)]
 	data = data[(data.x2 < 50 )&(data.x2 >= 30)]
@@ -100,22 +132,46 @@ def main( ):
 	data = data[(data.x6 < 100 )]
 	#x7 looks somewhat clean at this point 
 	data = data[ ( data.labels > -2000 ) ]
-
 	#save new clean data
 	data.to_csv( 'cut_mo.csv' )
 	newData = get_data("cut_mo.csv")
 	split_data(newData, 0.20 )
-	display_data(newData)
+	#display_data(newData)
 
+def save_to_joblib(reg):
+	joblib.dump(reg, 'linear.joblib')
+
+
+
+
+def main( ):
+	print("Reading data...")
+	#numpy show
+	cut_data = get_data("cut_mo.csv")
+	display_data(cut_data)
 	#printing scalers to know the train_x values to find correlations
 	data_train = get_data( "mo_train.csv" )
 	#display_data("data_train")
 	train_X_raw, train_Y = separate_predictors_and_labels( data_train )
-	train_X = scale_predictors( train_X_raw )
+	train_X, scaler = scale_predictors( train_X_raw )
+	print ("Train_X_RAW")
 	print( train_X_raw )
+	print ("train_X")
 	print( train_X )
+	print ("sclaer")
+	print( scaler )
+	reg = fit( train_X, train_Y )
 	#train_X.to_csv("train_X.csv")
 	#print(data.labels)
+	data_test = get_data( "mo_test.csv" )
+	test_X_raw, test_Y = separate_predictors_and_labels( data_test )
+	test_X_raw = test_X_raw.astype( 'float64' )
+	test_X = scaler.transform( test_X_raw )
+	test( test_X, test_Y, reg )
+	#Dump data into joblib 
+	save_to_joblib(reg)
+
+	return
 
 
 if __name__ == "__main__":
